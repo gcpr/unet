@@ -71,7 +71,8 @@ class Trainer:
         :param fit_kwargs: Further kwargs passd to `model.fit`
         """
 
-        prediction_shape = self._get_output_shape(model, train_dataset)[1:]
+        prediction_shape = (160, 160, 2)
+        # prediction_shape = self._get_output_shape(model, train_dataset.batch(batch_size, drop_remainder=True))[1:]
 
         learning_rate_scheduler = self._build_learning_rate_scheduler(train_dataset=train_dataset,
                                                                       batch_size=batch_size,
@@ -84,10 +85,10 @@ class Trainer:
         if learning_rate_scheduler:
             callbacks += [learning_rate_scheduler]
 
-        train_dataset = train_dataset.map(utils.crop_labels_to_shape(prediction_shape)).batch(batch_size)
+        train_dataset = train_dataset.map(utils.crop_labels_to_shape(prediction_shape)).batch(batch_size, drop_remainder=True)
 
         if validation_dataset:
-            validation_dataset = validation_dataset.map(utils.crop_labels_to_shape(prediction_shape)).batch(batch_size)
+            validation_dataset = validation_dataset.map(utils.crop_labels_to_shape(prediction_shape)).batch(batch_size, drop_remainder=True)
 
         history = model.fit(train_dataset,
                             validation_data=validation_dataset,

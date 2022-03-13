@@ -27,7 +27,7 @@ class TensorBoardImageSummary(Callback):
         super().__init__()
 
     def on_epoch_end(self, epoch, logs=None):
-        predictions = self.model.predict(self.dataset.batch(batch_size=1))
+        predictions = self.model.predict(self.dataset.batch(batch_size=1, drop_remainder=True))
 
         self._log_histogramms(epoch, predictions)
 
@@ -39,7 +39,7 @@ class TensorBoardImageSummary(Callback):
         cropped_images, cropped_labels = list(self.dataset
                                               .map(utils.crop_image_and_label_to_shape(predictions.shape[1:]))
                                               .take(self.max_outputs)
-                                              .batch(self.max_outputs))[0]
+                                              .batch(self.max_outputs, drop_remainder=True))[0]
 
         output = self.combine_to_image(cropped_images.numpy(),
                                        cropped_labels.numpy(),

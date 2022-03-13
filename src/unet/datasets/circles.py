@@ -20,7 +20,7 @@ def _build_samples(sample_count:int, nx:int, ny:int, **kwargs) -> Tuple[np.array
         images[i] = image
         labels[i, ..., 0] = ~mask
         labels[i, ..., 1] = mask
-    return images, labels
+    return images.astype(np.float32), labels.astype(np.float32)
 
 
 def _create_image_and_mask(nx, ny, cnt=10, r_min=3, r_max=10, border=32, sigma=20):

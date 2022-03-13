@@ -2,8 +2,8 @@ import tensorflow as tf
 
 
 def mean_iou(y_true, y_pred):
-    y_true = tf.cast(y_true, tf.dtypes.float64)
-    y_pred = tf.cast(y_pred, tf.dtypes.float64)
+    y_true = tf.cast(y_true, tf.dtypes.float32)
+    y_pred = tf.cast(y_pred, tf.dtypes.float32)
     I = tf.reduce_sum(y_pred * y_true, axis=(1, 2))
     U = tf.reduce_sum(y_pred + y_true, axis=(1, 2)) - I
     return tf.reduce_mean(I / U)
