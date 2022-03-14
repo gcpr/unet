@@ -71,7 +71,7 @@ class Trainer:
         :param fit_kwargs: Further kwargs passd to `model.fit`
         """
 
-        prediction_shape = (160, 160, 2)
+        prediction_shape = (216, 216, 2)
         # prediction_shape = self._get_output_shape(model, train_dataset.batch(batch_size, drop_remainder=True))[1:]
 
         learning_rate_scheduler = self._build_learning_rate_scheduler(train_dataset=train_dataset,
