@@ -238,5 +238,5 @@ def finalize_model(model: Model,
     model.compile(loss=loss,
                   optimizer=optimizer,
                   metrics=metrics,
-                  steps_per_execution=10
+                  steps_per_execution=4
                   )
