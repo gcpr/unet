@@ -103,7 +103,7 @@ class Trainer:
                           model: Model,
                           train_dataset: tf.data.Dataset):
         return model.predict(train_dataset
-                             .take(count=1)
+                            #  .take(count=1)
                              .batch(batch_size=1, drop_remainder=True)
                              ).shape
 
@@ -132,14 +132,14 @@ class Trainer:
             tensorboard_image_summary = TensorBoardImageSummary("train",
                                                                 self.log_dir_path,
                                                                 dataset=train_dataset,
-                                                                max_outputs=6)
+                                                                max_outputs=8)
             callbacks.append(tensorboard_image_summary)
 
             if validation_dataset:
                 tensorboard_image_summary = TensorBoardImageSummary("validation",
                                                                     self.log_dir_path,
                                                                     dataset=validation_dataset,
-                                                                    max_outputs=6)
+                                                                    max_outputs=8)
                 callbacks.append(tensorboard_image_summary)
 
         return callbacks
