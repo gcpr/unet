@@ -84,15 +84,17 @@ class Trainer:
         if learning_rate_scheduler:
             callbacks += [learning_rate_scheduler]
 
+        # train_dataset = train_dataset.map(utils.crop_labels_to_shape(prediction_shape), num_parallel_calls=-1).batch(batch_size, drop_remainder=True).cache()
         train_dataset = train_dataset.map(utils.crop_labels_to_shape(prediction_shape)).batch(batch_size, drop_remainder=True)
 
         if validation_dataset:
+            # validation_dataset = validation_dataset.map(utils.crop_labels_to_shape(prediction_shape), num_parallel_calls=-1).batch(batch_size, drop_remainder=True).cache()
             validation_dataset = validation_dataset.map(utils.crop_labels_to_shape(prediction_shape)).batch(batch_size, drop_remainder=True)
 
         history = model.fit(train_dataset,
-                            validation_data=validation_dataset,
+                            # validation_data=validation_dataset,
                             epochs=epochs,
-                            callbacks=callbacks,
+                            # callbacks=callbacks,
                             **fit_kwargs)
 
         self.evaluate(model, test_dataset, prediction_shape)

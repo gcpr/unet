@@ -14,6 +14,11 @@ import logging
 
 import numpy as np
 
+from tensorflow.python import ipu
+
+import sys
+sys.path.append('../src/')
+
 import unet
 from unet.datasets import circles
 
@@ -24,28 +29,33 @@ np.random.seed(98765)
 
 
 def train():
-    unet_model = unet.build_model(channels=circles.channels,
-                                  num_classes=circles.classes,
-                                  layer_depth=3,
-                                  filters_root=16)
+    train_dataset, validation_dataset = circles.load_data(100, nx=256, ny=256, splits=(0.8, 0.2))
+    train_dataset = train_dataset.repeat(1)
+    validation_dataset = validation_dataset.repeat(1)
 
-    unet.finalize_model(unet_model,
-                        learning_rate=LEARNING_RATE)
+    cfg = ipu.config.IPUConfig()
+    # Request 1 IPU
+    cfg.auto_select_ipus = 1
+    # Enable asynchronous IO tiles
+    cfg.io_tiles.num_io_tiles = 32
+    cfg.io_tiles.place_ops_on_io_tiles = True
+    # Apply the configuration
+    cfg.configure_ipu_system()
 
-    trainer = unet.Trainer(name="circles",
-                           learning_rate_scheduler=unet.SchedulerType.WARMUP_LINEAR_DECAY,
-                           warmup_proportion=0.1,
-                           learning_rate=LEARNING_RATE)
-
-    train_dataset, validation_dataset, test_dataset = circles.load_data(100, nx=272, ny=272, r_max=20)
-
-    trainer.fit(unet_model,
-                train_dataset,
-                validation_dataset,
-                test_dataset,
-                epochs=25,
-                batch_size=5)
-
+    with ipu.ipu_strategy.IPUStrategy(enable_dataset_iterators=False).scope():
+        unet_model = unet.build_model(channels=circles.channels,
+                                    num_classes=circles.classes,
+                                    layer_depth=3,
+                                    filters_root=16)
+        unet.finalize_model(unet_model)
+        
+        trainer = unet.Trainer(checkpoint_callback=False)    
+        trainer.fit(unet_model,
+                    train_dataset,
+                    validation_dataset,
+                    epochs=5,
+                    batch_size=2)
+    
     return unet_model
 
 
